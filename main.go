@@ -2,9 +2,11 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net"
 	"os"
 
@@ -15,23 +17,82 @@ import (
 
 func usage() {
 	fmt.Printf("Usage: \n")
-	fmt.Printf("   %s address hostkey authkeys servermap\n", os.Args[0])
-	fmt.Printf("\n")
-	fmt.Printf("   address    The address for the server to bind to\n")
-	fmt.Printf("   hostkey    The private key for the server\n")
-	fmt.Printf("   authkeys   The authorized_keys file to allow access for\n")
-	fmt.Printf("   servermap  The list of servers and users that may access them\n")
+	fmt.Printf("   %s conf\n", os.Args[0])
 }
 
+type Host struct {
+	Address string   `json:"address"`
+	Users   []string `json:"users"`
+	NoAuth  bool     `json:"noAuth"`
+}
+
+type Conf struct {
+	Address  string `json:"address"`
+	HostKey  string `json:"hostkey"`
+	AuthKeys string `json:"authkeys"`
+	Hosts    []Host `json:"hosts"`
+}
+
+func parseConf(filename string) (*Conf, error) {
+	f, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	c := &Conf{}
+	err = json.Unmarshal(f, c)
+	if err != nil {
+		return nil, err
+	}
+
+	return c, nil
+}
+
+func parseAuthFile(filename string) ([]*sshmux.User, error) {
+	var users []*sshmux.User
+
+	authFile, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	// Parse authfile as authorized_key
+
+	for len(authFile) > 0 {
+		var (
+			pk      ssh.PublicKey
+			comment string
+		)
+
+		pk, comment, _, authFile, err = ssh.ParseAuthorizedKey(authFile)
+		if err != nil {
+			return nil, err
+		}
+
+		u := &sshmux.User{
+			PublicKey: pk,
+			Name:      comment,
+		}
+
+		users = append(users, u)
+	}
+
+	return users, nil
+}
 func main() {
-	if len(os.Args) != 5 {
+	if len(os.Args) != 2 {
 		usage()
 		return
 	}
 
-	address, hostKey, authKeys, serverMap := os.Args[1], os.Args[2], os.Args[3], os.Args[4]
+	conf := os.Args[1]
 
-	hostPrivateKey, err := ioutil.ReadFile(hostKey)
+	c, err := parseConf(conf)
+	if err != nil {
+		panic(err)
+	}
+
+	hostPrivateKey, err := ioutil.ReadFile(c.HostKey)
 	if err != nil {
 		panic(err)
 	}
@@ -41,23 +102,16 @@ func main() {
 		panic(err)
 	}
 
-	remotes, err := parseRemotes(serverMap)
+	users, err := parseAuthFile(c.AuthKeys)
 	if err != nil {
 		panic(err)
 	}
 
-	users, err := parseAuthFile(remotes, authKeys)
-	if err != nil {
-		panic(err)
-	}
-
-	var defaultRemotes []*sshmux.Remote
-	for _, s := range remotes {
-		for _, o := range s.Options {
-			if o == "noauth" {
-				defaultRemotes = append(defaultRemotes, s)
-				break
-			}
+	hasDefaults := false
+	for _, h := range c.Hosts {
+		if h.NoAuth {
+			hasDefaults = true
+			break
 		}
 	}
 
@@ -71,7 +125,7 @@ func main() {
 			}
 		}
 
-		if len(defaultRemotes) != 0 {
+		if hasDefaults {
 			return nil, nil
 		}
 
@@ -79,15 +133,27 @@ func main() {
 	}
 
 	setup := func(session *sshmux.Session) error {
-		session.Remotes = append(session.Remotes, session.User.Remotes...)
-		session.Remotes = append(session.Remotes, defaultRemotes...)
+	outer:
+		for _, h := range c.Hosts {
+			if h.NoAuth {
+				session.Remotes = append(session.Remotes, h.Address)
+				continue outer
+			}
+
+			for _, u := range h.Users {
+				if u == session.User.Name {
+					session.Remotes = append(session.Remotes, h.Address)
+					continue outer
+				}
+			}
+		}
 		return nil
 	}
 
 	server := sshmux.New(hostSigner, auth, setup)
 	// Set up listener
 
-	l, err := net.Listen("tcp", address)
+	l, err := net.Listen("tcp", c.Address)
 	if err != nil {
 		panic(err)
 	}
