@@ -1,0 +1,20 @@
+{
+   "address": ":22",
+   "hostkey": "hostkey",
+   "authkeys": "authkeys",
+   "hosts": [
+      {
+         "address": "ssh1.example.com:22",
+         "users": [ "boss", "me", "granny" ]
+      },
+      {
+         "address": "public.example.com:22",
+         "noAuth": true
+      },
+      {
+         "address": "secret.example.com:22",
+         "users": [ "me" ]
+      }
+   ]
+}
+
