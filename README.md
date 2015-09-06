@@ -36,7 +36,7 @@ So how do you use this to actually connect to that server? I mean you see the se
 
 	ssh -o ProxyCommand="ssh -W localhost:port my_server -p port" my_server -p port
 
-What this does is before the connection to my\_server, it opens up a ssh connection to my\_server and asks for a TCP connection to localhost:port. Next the the client's stdin/stdout are forwarded over the secure connection and then the tcp connection. Because it is specified as a ProxyCommand, ssh knows that whatever it sends to the stdin of the ProxyCommand and whatever it reads from the stdout of the ProxyCommand is actually data from a SSH server. Its kinda complex but think about it and I'm sure you'll understand
+What this does is before the connection to my\_server, it opens up a ssh connection to my\_server and asks for a TCP connection to localhost:port. Next the the client's stdin/stdout are forwarded over the secure connection and then the tcp connection. Because this client is specified as a ProxyCommand, the other ssh client knows that whatever it sends to the stdin of the ProxyCommand and whatever it reads from the stdout of the ProxyCommand is actually data from a SSH server. Its kinda complex but think about it and I'm sure you'll understand.
 
 The proxy command can be specified in the .ssh/config as so, just make sure its under the correct Hosts.
 
