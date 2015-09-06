@@ -40,7 +40,7 @@ What this does is before the connection to my\_server, it opens up a ssh connect
 
 The proxy command can be specified in the .ssh/config as so, just make sure its under the correct Hosts.
 
-	ProxyCommand="ssh -W %h:%p sshmux.example.com"
+	ProxyCommand ssh -W %h:%p sshmux.example.com
 
 Read the manpage for more info.
 
