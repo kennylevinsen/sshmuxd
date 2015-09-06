@@ -1,4 +1,4 @@
-# sshmuxd 
+# sshmuxd
 
 A SSH "jump host" style proxy, based off the https://github.com/joushou/sshmux library.
 
@@ -17,6 +17,14 @@ sshmuxd can be run with:
       cd $GOPATH/src/github.com/joushou/sshmuxd
       go build
       ./sshmuxd example_conf.json
+
+# What does it do?
+
+It acts like a regular SSH server, waiting for either session channel requests (regular ssh) or direct tcp connection requests (ssh -W).
+
+If it gets a regular session channel request, it will figure out what servers the user is allowed to connect to. If the user is only permitted access to one server, it writes out which server it is connecting to, and connects immediately. If the user is permitted access to multiple servers, it will present the user with an interactive prompt, asking which server the user wishes to connect to.
+
+If it gets a direct tcp connection request, it will simply check if this connection is permitted for the user, and if yes, execute the connection.
 
 # Limitations
 sshmux, and by extension, sshmuxd, can only forward normal sessions (ssh'ing directly to sshmuxd without a ProxyCommand) if agent forwarding is enabled. This is because your normal session authenticates to sshmux, but sshmux then has to authenticate you with the remote host, requiring a additional access to your agent. sshmux will, however, not forward your agent to the final remote host. Doing this is simple if wanted, but I have to decide on how this is toggled. This also means that the sftp and scp clients bundled with openssh cannot use normal session forwarding. If you want this to work, try to revive this *very* old bug report about it: https://bugzilla.mindrot.org/show_bug.cgi?id=831.
