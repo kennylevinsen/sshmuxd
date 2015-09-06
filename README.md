@@ -28,9 +28,9 @@ If it gets a direct tcp connection request, it will simply check if this connect
 
 # Just show me how it looks!
 
-Using the interactive selection:
+Using the "regular ssh"-mode with interactive selection (That is, more than one permitted remote host for that user):
 
-      $ ssh sshmuxd.example.com
+      $ ssh sshmux.example.com
       Welcome to sshmux, joushou
           [0] server1.example.com:22
           [1] server2.example.com:22
@@ -44,7 +44,24 @@ If you then enter a number, it'll look like this:
       $ hostname
       serve2.example.com
 
-If you use ssh -W mode, it won't look any different.
+If there were only one permitted host, sshmuxd will skip right to showing "Connecting to...". In direct tcp mode (ssh -W), you don't see any difference at all.
+
+# What's ssh -W?
+
+ssh -W is a ssh mode that asks the ssh server to connect to a remote host, and forward the traffic over the SSH connection. The local ssh client then connects this to stdin and stdout. How do you use that to jump hosts? With ProxyCommand! Put the following in your ssh_config:
+
+      Host server1.example.com
+          ProxyCommand ssh -W %h:%p sshmux.example.com
+
+Followed by running ssh from your command-line:
+
+      ssh server1.example.com
+
+You can also do this directly on the command-line, without ssh_config, with:
+
+      ssh -oProxyCommand="ssh -W %h:%p sshmux.example.com" server1.example.com
+
+This technique works is the general approach to jump hosts, and not related to sshmux. sshmux simply implements it with fine-grained controls.
 
 # Limitations
 sshmux, and by extension, sshmuxd, can only forward normal sessions (ssh'ing directly to sshmuxd without a ProxyCommand) if agent forwarding is enabled. This is because your normal session authenticates to sshmux, but sshmux then has to authenticate you with the remote host, requiring a additional access to your agent. sshmux will, however, not forward your agent to the final remote host. Doing this is simple if wanted, but I have to decide on how this is toggled. This also means that the sftp and scp clients bundled with openssh cannot use normal session forwarding. If you want this to work, try to revive this *very* old bug report about it: https://bugzilla.mindrot.org/show_bug.cgi?id=831.
