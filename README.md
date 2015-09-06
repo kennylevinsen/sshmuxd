@@ -28,15 +28,15 @@ If it gets a direct tcp connection request, it will simply check if this connect
 
 To put it into perspective run this (replace port with actual port)
 
-	ssh -W localhost:port my\_server -p port
+	ssh -W localhost:port my_server -p port
 
-Notice how you get the beginning of the OpenSSH protocol handshake? This is because the client first connects to the my\_server, then requests opening a raw tcp connection to localhost:port (relative to my\_server) and then finally has its stdout/stdin forwarded over the secure connection from the server to the raw tcp connection to the same OpenSSH server. Which is why you see the initial handshake information.
+Notice how you get the beginning of the OpenSSH protocol handshake? This is because the client first connects to the my\_server, then requests opening a raw tcp connection to localhost:port (relative to my\_server) and then finally has its stdout/stdin forwarded over the secure connection from the server to the raw tcp connection to the same OpenSSH server (we specified the same server in -W). Which is why you see the initial handshake information.
 
 So how do you use this to actually connect to that server? I mean you see the servers intial handshake, but how do you get ssh to connect over it? Do this (replace port with actual port):
 
-	ssh -o ProxyCommand="ssh -W localhost:port my\_server -p port" my\_server -p port
+	ssh -o ProxyCommand="ssh -W localhost:port my_server -p port" my_server -p port
 
-What this does is before the connection to my\_server, it opens up a ssh connection to my\_server and asks for a TCP connection to localhost:port and forwards its stdin/stdout over the secure connection and then the tcp connection. Next becuase the clients stdin/stdout are forwarded over and it is specified as the ProxyCommand, ssh knows that whatever it sends to the stdin of the ProxyCommand and whatever it reads from the stdout of the ProxyCommand is actually communicationf from a SSH server. Its kinda complex but think about it and I'm sure you'll understand
+What this does is before the connection to my\_server, it opens up a ssh connection to my\_server and asks for a TCP connection to localhost:port. Next the the client's stdin/stdout are forwarded over the secure connection and then the tcp connection. Because it is specified as a ProxyCommand, ssh knows that whatever it sends to the stdin of the ProxyCommand and whatever it reads from the stdout of the ProxyCommand is actually data from a SSH server. Its kinda complex but think about it and I'm sure you'll understand
 
 The proxy command can be specified in the .ssh/config as so, just make sure its under the correct Hosts.
 
