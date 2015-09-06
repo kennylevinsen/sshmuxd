@@ -26,6 +26,26 @@ If it gets a regular session channel request, it will figure out what servers th
 
 If it gets a direct tcp connection request, it will simply check if this connection is permitted for the user, and if yes, execute the connection.
 
+# Just show me how it looks!
+
+Using the interactive selection:
+
+      $ ssh sshmuxd.example.com
+      Welcome to sshmux, joushou
+          [0] server1.example.com:22
+          [1] server2.example.com:22
+          [2] secret.example.com:65432
+      Please select remote server:
+
+If you then enter a number, it'll look like this:
+
+      Please select remote server: 1
+      Connecting to server2.example.com:22
+      $ hostname
+      serve2.example.com
+
+If you use ssh -W mode, it won't look any different.
+
 # Limitations
 sshmux, and by extension, sshmuxd, can only forward normal sessions (ssh'ing directly to sshmuxd without a ProxyCommand) if agent forwarding is enabled. This is because your normal session authenticates to sshmux, but sshmux then has to authenticate you with the remote host, requiring a additional access to your agent. sshmux will, however, not forward your agent to the final remote host. Doing this is simple if wanted, but I have to decide on how this is toggled. This also means that the sftp and scp clients bundled with openssh cannot use normal session forwarding. If you want this to work, try to revive this *very* old bug report about it: https://bugzilla.mindrot.org/show_bug.cgi?id=831.
 
