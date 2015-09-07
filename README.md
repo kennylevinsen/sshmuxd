@@ -11,8 +11,11 @@ sshmuxd can be installed from source (super simple with Go).
 To download source:
 
       go get github.com/joushou/sshmuxd
+As long as $GOPATH/bin is in your PATH, you can run it with:
+ 		 
+	sshmuxd conf.json
 
-sshmuxd can be run with:
+Otherwise:
 
       cd $GOPATH/src/github.com/joushou/sshmuxd
       go build
@@ -48,7 +51,7 @@ If there were only one permitted host, sshmuxd will skip right to showing "Conne
 
 ## But what's ssh -W?
 
-ssh -W asks the SSH server to connect to make a raw TCP connection, and forward stdin/stdout of the local client to this connection. How do you use that to jump hosts? With ProxyCommand! Put the following in your ssh_config:
+ssh -W asks the SSH server to make a raw TCP connection, and forward stdin/stdout of the local client over the ssh connection to the raw TCP connection. How do you use that to jump hosts? With ProxyCommand! Put the following in your ~/.ssh/config (see the ssh_config manpage):
 
       Host server1.example.com
           ProxyCommand ssh -W %h:%p sshmux.example.com
@@ -61,12 +64,14 @@ You can also do this directly on the command-line, without ssh_config, with:
 
       ssh -oProxyCommand="ssh -W %h:%p sshmux.example.com" server1.example.com
 
-This technique works is the general approach to jump hosts, and not related to sshmux. sshmux simply implements it with fine-grained controls. For more info, see the ssh manpage.
+This technique works is the general approach to jump hosts, and not related to sshmux. sshmux simply implements it with fine-grained controls. For more info, see the the wiki page (https://github.com/joushou/sshmuxd/wiki/ProxyCommand) or the ssh manpage.
 
 # Limitations
-sshmux, and by extension, sshmuxd, can only forward normal sessions (ssh'ing directly to sshmuxd without a ProxyCommand) if agent forwarding is enabled. This is because your normal session authenticates to sshmux, but sshmux then has to authenticate you with the remote host, requiring a additional access to your agent. sshmux will, however, not forward your agent to the final remote host. Doing this is simple if wanted, but I have to decide on how this is toggled. This also means that the sftp and scp clients bundled with openssh cannot use normal session forwarding. If you want this to work, try to revive this *very* old bug report about it: https://bugzilla.mindrot.org/show_bug.cgi?id=831.
+sshmux, and by extension, sshmuxd, can only forward normal sessions (ssh'ing directly to sshmuxd without a ProxyCommand) if agent forwarding is enabled. This is because your normal session authenticates to sshmux, but sshmux then has to authenticate you with the remote host, requiring a additional access to your agent. sshmux will, however, not forward your agent to the final remote host. Doing this is simple if wanted, but I have yet to decide on how this is toggled.
 
-Using a "ssh -W" ProxyCommand circumvents this limitation, both for ssh and sftp/scp, and also bypasses the interactive server selection, as the client will inform sshmux of the wanted target directly. If the target is permitted, the user will be connected. This also provides more protection for the paranoid, as the connection to the final host is encrypted end-to-end, rather than being plaintext in the memory of sshmux (not something I would worry too much about if the server is solely in your control).
+Please note that the sftp and scp clients bundled with openssh cannot use normal session forwarding thus you must use a ProxyCommand for them. If you want them to work normal session forwarding, try to revive this *very* old bug report about it: https://bugzilla.mindrot.org/show_bug.cgi?id=831.
+
+Using a "ssh -W" ProxyCommand circumvents this limitation, both for ssh and sftp/scp, and also bypasses the interactive server selection, as the client will inform sshmux of the wanted target directly. If the target is permitted, the user will be connected. This also provides more protection for the paranoid, as the connection to the final host is encrypted end-to-end, rather than being plaintext in the memory of sshmux.
 
 # Configuration
 sshmuxd requres 3 things:
