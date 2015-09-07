@@ -59,6 +59,8 @@ A good note, however, is that if you are concerned about the hosts you log into 
 
 With this, I am not saying that agent forwarding isn't dangerous. Don't use agent-forwarding to arbitrary machines you don't trust. If you have these concerns, you can use ssh -W, which provides guarantees of security against any issues with the jump host (but not the remote host). ssh -W as ProxyCommand in ssh_config is also much more convenient for hosts you log into often, rather than having to make interactive selections.
 
+Personally, I wish that ssh agents would ask the user before signing. This way, agent forwarding could be used a bit more relaxed, as users would be prompted with what and who is trying to sign before accepting. If signing is attempted without you using it, you could simply deny it. Blindly signing things is a bad idea.
+
 ## But what's ssh -W?
 
 ssh -W asks the SSH server to make a raw TCP connection, and forward stdin/stdout of the local client over the ssh connection to the raw TCP connection. How do you use that to jump hosts? With ProxyCommand! Put the following in your ~/.ssh/config (see the ssh_config manpage):
