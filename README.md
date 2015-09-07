@@ -4,7 +4,7 @@ A SSH "jump host" style proxy, based off the https://github.com/joushou/sshmux l
 
 So, why not just a jump host? Well, if it's just you and no one else needing access, go ahead. If you, however, want to give more than one person SSH access through your public IP on port N (N often being 22), then you might want something with a bit more access control. Sure, you can make really complicated SSH configs that limit a lot of things for the other users, but they'll always be able to poke around more than you want them to, and it'll be a pain in the butt to maintain.
 
-Thinking it could be done simpler, sshmux and sshmuxd got written. It allow you to have a proxy that will *only* permit forwarding to user-specific servers, regardless of method. No other poking around is possible, and no having to allow actual login for anyone to the server running sshmuxd.
+Thinking it could be done simpler, sshmux and sshmuxd got written. It allows you to have a proxy that will *only* permit forwarding to user-specific servers, regardless of method. No other poking around is possible, and no having to allow actual login for anyone to the server running sshmuxd.
 
 # Installation
 sshmuxd can be installed from source (super simple with Go).
