@@ -29,9 +29,9 @@ If it gets a regular session channel request, it will figure out what servers th
 
 If it gets a direct tcp connection request, it will simply check if this connection is permitted for the user, and if yes, execute the connection.
 
-## Just show me how it looks!
+## Just show me what it looks like!
 
-Using the "regular ssh"-mode with interactive selection (That is, more than one permitted remote host for that user):
+Using the "regular ssh"-mode with interactive selection (that is, more than one permitted remote host for that user):
 
       $ ssh sshmux.example.com
       Welcome to sshmux, joushou
@@ -74,10 +74,10 @@ Please note that the sftp and scp clients bundled with openssh cannot use normal
 Using a "ssh -W" ProxyCommand circumvents this limitation, both for ssh and sftp/scp, and also bypasses the interactive server selection, as the client will inform sshmux of the wanted target directly. If the target is permitted, the user will be connected. This also provides more protection for the paranoid, as the connection to the final host is encrypted end-to-end, rather than being plaintext in the memory of sshmux.
 
 # Configuration
-sshmuxd requres 3 things:
+sshmuxd requires 3 things:
 * An authorized_keys-style file ("authkeys"), with the public key of all permitted users. Do note that the comment after the public key will be used as name of the user internally (this does not affect usernames over SSH, though).
 * A private key for the server to use ("hostkey").
-* A JSON configuration file. The format of the file is as follows (Do note that, due to the presence of comments, this is not actually a valid JSON file. Remove comments before use, or refer to example_conf.json)
+* A JSON configuration file. The format of the file is as follows (note that, due to the presence of comments, this is not actually a valid JSON file. Remove comments before use, or refer to example_conf.json)
 
       {
          // Listening address as given directly to net.Listen.
