@@ -49,6 +49,16 @@ If you then enter a number, it'll look like this:
 
 If there were only one permitted host, sshmuxd will skip right to showing "Connecting to...". In direct tcp mode (ssh -W), you don't see any difference at all.
 
+## But agent forwarding is dangerous!
+
+In the general sense, yes. If you don't just ignore SSH's warnings about changed host keys, then you can be sure that you're connecting to the real host. That means that, to abuse agents in the common sense, the root user must be compromised on that machine. The root user will then be able to sign things with our private key by accessing the agent socket that got forwarded. The result is the same as if the root user of your local machine got compromised, with a private key that is password protected very well, but the agent had the key unlocked, signing requests as it is told.
+
+With sshmux, agent forwarding isn't handled as a socket, but in-memory. Depending on OS, this doesn't necessarily protect you against an evil root, due to peculiar interfaces such as /dev/mem, but it sure does increase the barrier of entry: Rather than just reading an easily found socket, you need to inspect arbitrary process memory, finding the right component and interfacing with it accordingly.
+
+A good note, however, is that if you are concerned about the hosts you log into having arbitrary process memory or root login compromised, you shouldn't really log in to them at all, but take them offline immediately and use a serial console (virtual or physical) to salvage what is necessary, followed by a total wipe of the machine. Using them, or even just leaving them online in this state, will not bring you any good.
+
+With this, I am not saying that agent forwarding isn't dangerous. Don't use agent-forwarding to arbitrary machines you don't trust. If you have these concerns, you can use ssh -W, which provides guarantees of security against any issues with the jump host (but not the remote host). ssh -W as ProxyCommand in ssh_config is also much more convenient for hosts you log into often, rather than having to make interactive selections.
+
 ## But what's ssh -W?
 
 ssh -W asks the SSH server to make a raw TCP connection, and forward stdin/stdout of the local client over the ssh connection to the raw TCP connection. How do you use that to jump hosts? With ProxyCommand! Put the following in your ~/.ssh/config (see the ssh_config manpage):
