@@ -4,7 +4,7 @@ A SSH "jump host" style proxy, based off the https://github.com/joushou/sshmux l
 
 So, why not just a jump host? Well, if it's just you and no one else needing access, go ahead. If you, however, want to give more than one person SSH access through your public IP on port N (N often being 22), then you might want something with a bit more access control. Sure, you can make really complicated SSH configs that limit a lot of things for the other users, but they'll always be able to poke around more than you want them to, and it'll be a pain in the butt to maintain.
 
-Thinking it could be done simpler, sshmux and sshmuxd got written. It allow you to have a proxy that will *only* permit forwarding to user-specific servers, regardless of method. No other poking around is possible, and no having to allow actual login for anyone to the server running sshmuxd.
+Thinking it could be done simpler, sshmux and sshmuxd got written. It allows you to have a proxy that will *only* permit forwarding to user-specific servers, regardless of method. No other poking around is possible, and no having to allow actual login for anyone to the server running sshmuxd.
 
 # Installation
 sshmuxd can be installed from source (super simple with Go).
@@ -29,9 +29,9 @@ If it gets a regular session channel request, it will figure out what servers th
 
 If it gets a direct tcp connection request, it will simply check if this connection is permitted for the user, and if yes, execute the connection.
 
-## Just show me how it looks!
+## Just show me what it looks like!
 
-Using the "regular ssh"-mode with interactive selection (That is, more than one permitted remote host for that user):
+Using the "regular ssh"-mode with interactive selection (that is, more than one permitted remote host for that user):
 
       $ ssh sshmux.example.com
       Welcome to sshmux, joushou
@@ -48,6 +48,18 @@ If you then enter a number, it'll look like this:
       serve2.example.com
 
 If there were only one permitted host, sshmuxd will skip right to showing "Connecting to...". In direct tcp mode (ssh -W), you don't see any difference at all.
+
+## But agent forwarding is dangerous!
+
+In the general sense, yes. If you don't just ignore SSH's warnings about changed host keys, then you can be sure that you're connecting to the real host. That means that, to abuse agents in the common sense, the root user must be compromised on that machine. The root user will then be able to sign things with our private key by accessing the agent socket that got forwarded. The result is the same as if the root user of your local machine got compromised, with a private key that is password protected very well, but the agent had the key unlocked, signing requests as it is told.
+
+With sshmux, agent forwarding isn't handled as a socket, but in-memory. Depending on OS, this doesn't necessarily protect you against an evil root, due to peculiar interfaces such as /dev/mem, but it sure does increase the barrier of entry: Rather than just reading an easily found socket, you need to inspect arbitrary process memory, finding the right component and interfacing with it accordingly.
+
+A good note, however, is that if you are concerned about the hosts you log into having arbitrary process memory or root login compromised, you shouldn't really log in to them at all, but take them offline immediately and use a serial console (virtual or physical) to salvage what is necessary, followed by a total wipe of the machine. Using them, or even just leaving them online in this state, will not bring you any good.
+
+With this, I am not saying that agent forwarding isn't dangerous. Don't use agent-forwarding to arbitrary machines you don't trust. If you have these concerns, you can use ssh -W, which provides guarantees of security against any issues with the jump host (but not the remote host). ssh -W as ProxyCommand in ssh_config is also much more convenient for hosts you log into often, rather than having to make interactive selections.
+
+Personally, I wish that ssh agents would ask the user before signing. This way, agent forwarding could be used a bit more relaxed, as users would be prompted with what and who is trying to sign before accepting. If signing is attempted without you using it, you could simply deny it. Blindly signing things is a bad idea.
 
 ## But what's ssh -W?
 
@@ -74,10 +86,10 @@ Please note that the sftp and scp clients bundled with openssh cannot use normal
 Using a "ssh -W" ProxyCommand circumvents this limitation, both for ssh and sftp/scp, and also bypasses the interactive server selection, as the client will inform sshmux of the wanted target directly. If the target is permitted, the user will be connected. This also provides more protection for the paranoid, as the connection to the final host is encrypted end-to-end, rather than being plaintext in the memory of sshmux.
 
 # Configuration
-sshmuxd requres 3 things:
+sshmuxd requires 3 things:
 * An authorized_keys-style file ("authkeys"), with the public key of all permitted users. Do note that the comment after the public key will be used as name of the user internally (this does not affect usernames over SSH, though).
 * A private key for the server to use ("hostkey").
-* A JSON configuration file. The format of the file is as follows (Do note that, due to the presence of comments, this is not actually a valid JSON file. Remove comments before use, or refer to example_conf.json)
+* A JSON configuration file. The format of the file is as follows (note that, due to the presence of comments, this is not actually a valid JSON file. Remove comments before use, or refer to example_conf.json)
 
       {
          // Listening address as given directly to net.Listen.
