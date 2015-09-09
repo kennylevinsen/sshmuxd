@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net"
 	"os"
 
@@ -78,7 +79,9 @@ func parseAuthFile(filename string) ([]*sshmux.User, error) {
 
 	return users, nil
 }
+
 func main() {
+	// Config
 	if len(os.Args) != 2 {
 		usage()
 		return
@@ -114,7 +117,8 @@ func main() {
 		}
 	}
 
-	auth := func(_ ssh.ConnMetadata, key ssh.PublicKey) (*sshmux.User, error) {
+	// sshmux setup
+	auth := func(c ssh.ConnMetadata, key ssh.PublicKey) (*sshmux.User, error) {
 		t := key.Type()
 		k := key.Marshal()
 		for i := range users {
@@ -128,10 +132,17 @@ func main() {
 			return nil, nil
 		}
 
+		log.Printf("%s: access denied (username: %s)", c.RemoteAddr(), c.User())
 		return nil, errors.New("access denied")
 	}
 
 	setup := func(session *sshmux.Session) error {
+		if session.User != nil {
+			log.Printf("%s: %s authorized (username: %s)", session.Conn.RemoteAddr(), session.User.Name, session.Conn.User())
+		} else {
+			log.Printf("%s: unknown user authorized (username: %s)", session.Conn.RemoteAddr(), session.Conn.User())
+		}
+
 	outer:
 		for _, h := range c.Hosts {
 			if h.NoAuth {
@@ -150,8 +161,12 @@ func main() {
 	}
 
 	server := sshmux.New(hostSigner, auth, setup)
-	// Set up listener
+	server.Selected = func(session *sshmux.Session, remote string) error {
+		log.Printf("%s: %s connecting to %s", session.Conn.RemoteAddr(), session.User.Name, remote)
+		return nil
+	}
 
+	// Set up listener
 	l, err := net.Listen("tcp", c.Address)
 	if err != nil {
 		panic(err)
