@@ -92,43 +92,45 @@ sshmuxd requires 3 things:
 * A private key for the server to use ("hostkey").
 * A JSON configuration file. The format of the file is as follows (note that, due to the presence of comments, this is not actually a valid JSON file. Remove comments before use, or refer to example_conf.json)
 
-	{
-		// Listening address as given directly to net.Listen.
-		"address": ":22",
+```
+{
+	// Listening address as given directly to net.Listen.
+	"address": ":22",
 
-		// Private key to use for built-in SSH server.
-		"hostkey": "hostkey",
+	// Private key to use for built-in SSH server.
+	"hostkey": "hostkey",
 
-		// Authorized keys to use for authenticating users. An important note
-		// is that the comment (the part after the key itself in an entry)
-		// will	be used as name for the user internally.
-		"authkeys": "authkeys",
+	// Authorized keys to use for authenticating users. An important note
+	// is that the comment (the part after the key itself in an entry)
+	// will	be used as name for the user internally.
+	"authkeys": "authkeys",
 
-		// The list of remote hosts that can be used through this proxy.
-		"hosts": [
-			{
-				// The address of the remote host. This address must include the
-				// port.
-				"address": "ssh1.example.com:22",
+	// The list of remote hosts that can be used through this proxy.
+	"hosts": [
+		{
+			// The address of the remote host. This address must include the
+			// port.
+			"address": "ssh1.example.com:22",
 
-				// The list of users permitted to access this host.
-				"users": [ "boss", "me", "granny" ]
+			// The list of users permitted to access this host.
+			"users": [ "boss", "me", "granny" ]
 
-				// Whether or not this server can be accessed by anyone,
-				// regardless of public key and presence in user list.
-				// Defaults to false.
-				"noAuth": false
-			},
-			{
-				"address": "public.example.com:22",
-				"noAuth": true
-			}
-			{
-				"address": "secret.example.com:22",
-				"users": [ "me" ]
-			},
-		]
-	}
+			// Whether or not this server can be accessed by anyone,
+			// regardless of public key and presence in user list.
+			// Defaults to false.
+			"noAuth": false
+		},
+		{
+			"address": "public.example.com:22",
+			"noAuth": true
+		}
+		{
+			"address": "secret.example.com:22",
+			"users": [ "me" ]
+		},
+	]
+}
+```
 
 # More info
 For more details about this project, see the underlying library: http://github.com/joushou/sshmux
