@@ -10,16 +10,17 @@ Thinking it could be done simpler, sshmux and sshmuxd got written. It allows you
 sshmuxd can be installed from source (super simple with Go).
 To download source:
 
-      go get github.com/joushou/sshmuxd
+	go get github.com/joushou/sshmuxd
+
 As long as $GOPATH/bin is in your PATH, you can run it with:
- 		 
+
 	sshmuxd conf.json
 
 Otherwise:
 
-      cd $GOPATH/src/github.com/joushou/sshmuxd
-      go build
-      ./sshmuxd example_conf.json
+	cd $GOPATH/src/github.com/joushou/sshmuxd
+	go build
+	./sshmuxd example_conf.json
 
 # What does it do?
 
@@ -33,19 +34,19 @@ If it gets a direct tcp connection request, it will simply check if this connect
 
 Using the "regular ssh"-mode with interactive selection (that is, more than one permitted remote host for that user):
 
-      $ ssh sshmux.example.com
-      Welcome to sshmux, joushou
-          [0] server1.example.com:22
-          [1] server2.example.com:22
-          [2] secret.example.com:65432
-      Please select remote server:
+	$ ssh sshmux.example.com
+	Welcome to sshmux, joushou
+	    [0] server1.example.com:22
+	    [1] server2.example.com:22
+	    [2] secret.example.com:65432
+	Please select remote server:
 
 If you then enter a number, it'll look like this:
 
-      Please select remote server: 1
-      Connecting to server2.example.com:22
-      $ hostname
-      server2.example.com
+	Please select remote server: 1
+	Connecting to server2.example.com:22
+	$ hostname
+	server2.example.com
 
 If there were only one permitted host, sshmuxd will skip right to showing "Connecting to...". In direct tcp mode (ssh -W), you don't see any difference at all.
 
@@ -65,16 +66,16 @@ Personally, I wish that ssh agents would ask the user before signing. This way, 
 
 ssh -W asks the SSH server to make a raw TCP connection, and forward stdin/stdout of the local client over the ssh connection to the raw TCP connection. How do you use that to jump hosts? With ProxyCommand! Put the following in your ~/.ssh/config (see the ssh_config manpage):
 
-      Host server1.example.com
-          ProxyCommand ssh -W %h:%p sshmux.example.com
+	Host server1.example.com
+		ProxyCommand ssh -W %h:%p sshmux.example.com
 
 Followed by running ssh from your command-line:
 
-      ssh server1.example.com
+	ssh server1.example.com
 
 You can also do this directly on the command-line, without ssh_config, with:
 
-      ssh -oProxyCommand="ssh -W %h:%p sshmux.example.com" server1.example.com
+	ssh -oProxyCommand="ssh -W %h:%p sshmux.example.com" server1.example.com
 
 This technique works is the general approach to jump hosts, and not related to sshmux. sshmux simply implements it with fine-grained controls. For more info, see the the wiki page (https://github.com/joushou/sshmuxd/wiki/ProxyCommand) or the ssh manpage.
 
@@ -91,45 +92,43 @@ sshmuxd requires 3 things:
 * A private key for the server to use ("hostkey").
 * A JSON configuration file. The format of the file is as follows (note that, due to the presence of comments, this is not actually a valid JSON file. Remove comments before use, or refer to example_conf.json)
 
-```
-{
-   // Listening address as given directly to net.Listen.
-   "address": ":22",
+	{
+		// Listening address as given directly to net.Listen.
+		"address": ":22",
 
-   // Private key to use for built-in SSH server.
-   "hostkey": "hostkey",
+		// Private key to use for built-in SSH server.
+		"hostkey": "hostkey",
 
-   // Authorized keys to use for authenticating users. An important note
-   // is that the comment (the part after the key itself in an entry)
-   // will  be used as name for the user internally.
-   "authkeys": "authkeys",
+		// Authorized keys to use for authenticating users. An important note
+		// is that the comment (the part after the key itself in an entry)
+		// will	be used as name for the user internally.
+		"authkeys": "authkeys",
 
-   // The list of remote hosts that can be used through this proxy.
-   "hosts": [
-      {
-         // The address of the remote host. This address must include the
-         // port.
-         "address": "ssh1.example.com:22",
+		// The list of remote hosts that can be used through this proxy.
+		"hosts": [
+			{
+				// The address of the remote host. This address must include the
+				// port.
+				"address": "ssh1.example.com:22",
 
-         // The list of users permitted to access this host.
-         "users": [ "boss", "me", "granny" ]
+				// The list of users permitted to access this host.
+				"users": [ "boss", "me", "granny" ]
 
-         // Whether or not this server can be accessed by anyone,
-         // regardless of public key and presence in user list.
-         // Defaults to false.
-         "noAuth": false
-      },
-      {
-         "address": "public.example.com:22",
-         "noAuth": true
-      }
-      {
-         "address": "secret.example.com:22",
-         "users": [ "me" ]
-      },
-   ]
-}
-```
+				// Whether or not this server can be accessed by anyone,
+				// regardless of public key and presence in user list.
+				// Defaults to false.
+				"noAuth": false
+			},
+			{
+				"address": "public.example.com:22",
+				"noAuth": true
+			}
+			{
+				"address": "secret.example.com:22",
+				"users": [ "me" ]
+			},
+		]
+	}
 
 # More info
 For more details about this project, see the underlying library: http://github.com/joushou/sshmux
