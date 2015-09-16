@@ -45,7 +45,7 @@ If you then enter a number, it'll look like this:
       Please select remote server: 1
       Connecting to server2.example.com:22
       $ hostname
-      serve2.example.com
+      server2.example.com
 
 If there were only one permitted host, sshmuxd will skip right to showing "Connecting to...". In direct tcp mode (ssh -W), you don't see any difference at all.
 
@@ -91,7 +91,7 @@ sshmuxd requires 3 things:
 * A private key for the server to use ("hostkey").
 * A JSON configuration file. The format of the file is as follows (note that, due to the presence of comments, this is not actually a valid JSON file. Remove comments before use, or refer to example_conf.json)
 
-      {
+         {
          // Listening address as given directly to net.Listen.
          "address": ":22",
 
@@ -127,7 +127,7 @@ sshmuxd requires 3 things:
                "users": [ "me" ]
             },
          ]
-      }
+         }
 
 # More info
 For more details about this project, see the underlying library: http://github.com/joushou/sshmux
