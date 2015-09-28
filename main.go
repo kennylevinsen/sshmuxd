@@ -137,11 +137,13 @@ func main() {
 	}
 
 	setup := func(session *sshmux.Session) error {
+		var username string
 		if session.User != nil {
-			log.Printf("%s: %s authorized (username: %s)", session.Conn.RemoteAddr(), session.User.Name, session.Conn.User())
+			username = session.User.Name
 		} else {
-			log.Printf("%s: unknown user authorized (username: %s)", session.Conn.RemoteAddr(), session.Conn.User())
+			username = "unknown user"
 		}
+		log.Printf("%s: %s authorized (username: %s)", session.Conn.RemoteAddr(), username, session.Conn.User())
 
 	outer:
 		for _, h := range c.Hosts {
@@ -162,7 +164,13 @@ func main() {
 
 	server := sshmux.New(hostSigner, auth, setup)
 	server.Selected = func(session *sshmux.Session, remote string) error {
-		log.Printf("%s: %s connecting to %s", session.Conn.RemoteAddr(), session.User.Name, remote)
+		var username string
+		if session.User != nil {
+			username = session.User.Name
+		} else {
+			username = "unknown user"
+		}
+		log.Printf("%s: %s connecting to %s", session.Conn.RemoteAddr(), username, remote)
 		return nil
 	}
 
