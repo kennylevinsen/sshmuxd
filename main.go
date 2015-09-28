@@ -152,6 +152,10 @@ func main() {
 				continue outer
 			}
 
+			if session.User == nil {
+				continue
+			}
+
 			for _, u := range h.Users {
 				if u == session.User.Name {
 					session.Remotes = append(session.Remotes, h.Address)
