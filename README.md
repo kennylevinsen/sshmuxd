@@ -113,7 +113,7 @@ sshmuxd requires 3 things:
 			"address": "ssh1.example.com:22",
 
 			// The list of users permitted to access this host.
-			"users": [ "boss", "me", "granny" ]
+			"users": [ "boss", "me", "granny" ],
 
 			// Whether or not this server can be accessed by anyone,
 			// regardless of public key and presence in user list.
@@ -123,11 +123,11 @@ sshmuxd requires 3 things:
 		{
 			"address": "public.example.com:22",
 			"noAuth": true
-		}
+		},
 		{
 			"address": "secret.example.com:22",
 			"users": [ "me" ]
-		},
+		}
 	]
 }
 ```
