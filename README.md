@@ -1,4 +1,4 @@
-# sshmuxd
+# sshmuxd [![Go Report Card](https://goreportcard.com/badge/joushou/sshmuxd)](https://goreportcard.com/report/joushou/sshmuxd)
 
 A SSH "jump host" style proxy, based off the https://github.com/joushou/sshmux library.
 
