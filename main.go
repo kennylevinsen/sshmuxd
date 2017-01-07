@@ -59,6 +59,12 @@ func parseAuthFile(filename string) ([]*sshmux.User, error) {
 	// Parse authfile as authorized_key
 
 	for len(authFile) > 0 {
+		switch authFile[0] {
+		case '\n', '\r', '\t', ' ':
+			authFile = authFile[1:]
+			continue
+		}
+
 		var (
 			pk      ssh.PublicKey
 			comment string
