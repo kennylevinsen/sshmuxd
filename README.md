@@ -7,20 +7,13 @@ So, why not just a jump host? Well, if it's just you and no one else needing acc
 Thinking it could be done simpler, sshmux and sshmuxd got written. It allows you to have a proxy that will *only* permit forwarding to user-specific servers, regardless of method. No other poking around is possible, and no having to allow actual login for anyone to the server running sshmuxd.
 
 # Installation
-sshmuxd can be installed from source (super simple with Go).
-To download source:
+The safest way to install sshmuxd is via git:
 
-	go get github.com/joushou/sshmuxd
-
-As long as $GOPATH/bin is in your PATH, you can run it with:
-
-	sshmuxd
-
-Otherwise:
-
+	git clone --recursive https://github.com/joushou/sshmuxd.git $GOPATH/src/github.com/joushou/sshmuxd
 	cd $GOPATH/src/github.com/joushou/sshmuxd
-	go build
-	./sshmuxd
+	go install
+
+Dependencies are vendored as git submodules.
 
 # What does it do?
 
