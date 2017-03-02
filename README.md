@@ -14,13 +14,13 @@ To download source:
 
 As long as $GOPATH/bin is in your PATH, you can run it with:
 
-	sshmuxd conf.json
+	sshmuxd
 
 Otherwise:
 
 	cd $GOPATH/src/github.com/joushou/sshmuxd
 	go build
-	./sshmuxd example_conf.json
+	./sshmuxd
 
 # What does it do?
 
@@ -90,7 +90,13 @@ Using a "ssh -W" ProxyCommand circumvents this limitation, both for ssh and sftp
 sshmuxd requires 3 things:
 * An authorized_keys-style file ("authkeys"), with the public key of all permitted users. Do note that the comment after the public key will be used as name of the user internally (this does not affect usernames over SSH, though).
 * A private key for the server to use ("hostkey").
-* A JSON configuration file. The format of the file is as follows (note that, due to the presence of comments, this is not actually a valid JSON file. Remove comments before use, or refer to example_conf.json)
+* A JSON configuration file named sshdmuxd.json in one of the following places:
+  - Working dir
+	- $HOME/.sshmuxd/
+	- /etc/sshmuxd/
+	- or pass the path on command line using --config filename.json
+
+The format of the file is as follows (note that, due to the presence of comments, this is not actually a valid JSON file. Remove comments before use, or refer to sshmuxd.json)
 
 ```
 {

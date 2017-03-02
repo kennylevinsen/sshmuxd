@@ -2,23 +2,18 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
-	"os"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/joushou/sshmux"
-
+	"github.com/spf13/viper"
 	"golang.org/x/crypto/ssh"
 )
-
-func usage() {
-	fmt.Printf("Usage: \n")
-	fmt.Printf("   %s conf\n", os.Args[0])
-}
 
 type Host struct {
 	Address string   `json:"address"`
@@ -26,27 +21,7 @@ type Host struct {
 	NoAuth  bool     `json:"noAuth"`
 }
 
-type Conf struct {
-	Address  string `json:"address"`
-	HostKey  string `json:"hostkey"`
-	AuthKeys string `json:"authkeys"`
-	Hosts    []Host `json:"hosts"`
-}
-
-func parseConf(filename string) (*Conf, error) {
-	f, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-
-	c := &Conf{}
-	err = json.Unmarshal(f, c)
-	if err != nil {
-		return nil, err
-	}
-
-	return c, nil
-}
+var configFile = flag.String("config", "", "User-supplied configuration file to use")
 
 func parseAuthFile(filename string) ([]*sshmux.User, error) {
 	var users []*sshmux.User
@@ -87,20 +62,43 @@ func parseAuthFile(filename string) ([]*sshmux.User, error) {
 }
 
 func main() {
-	// Config
-	if len(os.Args) != 2 {
-		usage()
-		return
-	}
+	flag.Parse()
+	viper.SetDefault("address", ":22")
+	viper.SetDefault("hostkey", "hostkey")
+	viper.SetDefault("authkeys", "authkeys")
 
-	conf := os.Args[1]
+	viper.SetConfigName("sshmuxd")
+	viper.AddConfigPath(".")
+	viper.AddConfigPath("$HOME/.sshmuxd")
+	viper.AddConfigPath("/etc/sshmuxd/")
 
-	c, err := parseConf(conf)
+	viper.SetConfigFile(*configFile)
+
+	err := viper.ReadInConfig()
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("Error parsing the config file: %s\n", err))
+	}
+	log.Printf("Config File used: %s", viper.ConfigFileUsed())
+
+	hosts := make([]Host, 0)
+	err = viper.UnmarshalKey("hosts", &hosts)
+	if err != nil {
+		panic(fmt.Errorf("Error parsing the config file hosts list: %s\n", err))
 	}
 
-	hostPrivateKey, err := ioutil.ReadFile(c.HostKey)
+	viper.WatchConfig()
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		log.Println("Config file changed:", e.Name)
+		err = viper.UnmarshalKey("hosts", &hosts)
+		if err != nil {
+			log.Printf("Error parsing the config file hosts list: %s\n"+
+				"Keeping current host list", err)
+		} else {
+			log.Printf("New hosts list: %+v\n", hosts)
+		}
+	})
+
+	hostPrivateKey, err := ioutil.ReadFile(viper.GetString("hostkey"))
 	if err != nil {
 		panic(err)
 	}
@@ -110,13 +108,13 @@ func main() {
 		panic(err)
 	}
 
-	users, err := parseAuthFile(c.AuthKeys)
+	users, err := parseAuthFile(viper.GetString("authkeys"))
 	if err != nil {
 		panic(err)
 	}
 
 	hasDefaults := false
-	for _, h := range c.Hosts {
+	for _, h := range hosts {
 		if h.NoAuth {
 			hasDefaults = true
 			break
@@ -152,7 +150,7 @@ func main() {
 		log.Printf("%s: %s authorized (username: %s)", session.Conn.RemoteAddr(), username, session.Conn.User())
 
 	outer:
-		for _, h := range c.Hosts {
+		for _, h := range hosts {
 			if h.NoAuth {
 				session.Remotes = append(session.Remotes, h.Address)
 				continue outer
@@ -185,7 +183,7 @@ func main() {
 	}
 
 	// Set up listener
-	l, err := net.Listen("tcp", c.Address)
+	l, err := net.Listen("tcp", viper.GetString("address"))
 	if err != nil {
 		panic(err)
 	}
