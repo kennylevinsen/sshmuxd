@@ -89,11 +89,13 @@ func main() {
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		log.Println("Config file changed:", e.Name)
-		err = viper.UnmarshalKey("hosts", &hosts)
+		nh := make([]Host, 0)
+		err = viper.UnmarshalKey("hosts", &nh)
 		if err != nil {
 			log.Printf("Error parsing the config file hosts list: %s\n"+
 				"Keeping current host list", err)
 		} else {
+			hosts = nh
 			log.Printf("New hosts list: %+v\n", hosts)
 		}
 	})
