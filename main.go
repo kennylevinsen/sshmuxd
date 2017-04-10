@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"errors"
 	"flag"
 	"fmt"
@@ -21,43 +22,36 @@ type Host struct {
 	NoAuth  bool     `json:"noAuth"`
 }
 
+type User struct {
+	PublicKey string `json:"publicKey"`
+	Name      string `json:"name"`
+}
+
 var configFile = flag.String("config", "", "User-supplied configuration file to use")
 
-func parseAuthFile(filename string) ([]*sshmux.User, error) {
+func parseUsers() ([]*sshmux.User, error) {
 	var users []*sshmux.User
-
-	authFile, err := ioutil.ReadFile(filename)
+	us := make([]User, 0)
+	err := viper.UnmarshalKey("users", &us)
 	if err != nil {
 		return nil, err
 	}
-
-	// Parse authfile as authorized_key
-
-	for len(authFile) > 0 {
-		switch authFile[0] {
-		case '\n', '\r', '\t', ' ':
-			authFile = authFile[1:]
-			continue
-		}
-
-		var (
-			pk      ssh.PublicKey
-			comment string
-		)
-
-		pk, comment, _, authFile, err = ssh.ParseAuthorizedKey(authFile)
+	for _, u := range us {
+		encoded, err := base64.StdEncoding.DecodeString(u.PublicKey)
 		if err != nil {
-			return nil, err
+			return nil, errors.New("Could not decode key: " + u.Name)
 		}
 
+		pk, err := ssh.ParsePublicKey([]byte(encoded))
+		if err != nil {
+			return nil, errors.New(err.Error() + " for " + u.Name)
+		}
 		u := &sshmux.User{
 			PublicKey: pk,
-			Name:      comment,
+			Name:      u.Name,
 		}
-
 		users = append(users, u)
 	}
-
 	return users, nil
 }
 
@@ -86,6 +80,11 @@ func main() {
 		panic(fmt.Errorf("Error parsing the config file hosts list: %s\n", err))
 	}
 
+	users, err := parseUsers()
+	if err != nil {
+		panic(fmt.Errorf("Error parsing the config file hosts list: %s\n", err))
+	}
+
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		log.Println("Config file changed:", e.Name)
@@ -98,6 +97,12 @@ func main() {
 			hosts = nh
 			log.Printf("New hosts list: %+v\n", hosts)
 		}
+		if u, err := parseUsers(); err != nil {
+			log.Printf("Error parsing the config file users list: %s\n"+
+				"Keeping current users list", err)
+		} else {
+			users = u
+		}
 	})
 
 	hostPrivateKey, err := ioutil.ReadFile(viper.GetString("hostkey"))
@@ -106,11 +111,6 @@ func main() {
 	}
 
 	hostSigner, err := ssh.ParsePrivateKey(hostPrivateKey)
-	if err != nil {
-		panic(err)
-	}
-
-	users, err := parseAuthFile(viper.GetString("authkeys"))
 	if err != nil {
 		panic(err)
 	}

@@ -1,7 +1,20 @@
 {
    "address": ":22",
    "hostkey": "hostkey",
-   "authkeys": "authkeys",
+   "users": [
+      {
+      	"publicKey": "AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPoWImSrY0Rt33Rg97HkDS3r7mdcFn5EJUv/dxiRWD9aPQUm8wp7buZDhpjb32Dt2PjKnNB6PrNOj7ORDFYEhRg=",
+      	"name": "me"
+      },
+      {
+       "publicKey": "AAAAC3NzaC1lZDI1NTE5AAAAINg6gWZLnH5gwLeDlw/URtvYgKmlFiiXHmra6oYObfBz",
+       "name": "boss"
+      },
+      {
+       "publicKey": "AAAAB3NzaC1yc2EAAAADAQABAAACAQDEmICmR4ZD175AlaWnLrMlHnNTu9MqZplgkj2MZOoX4gODbzlRUcI4MquehcZ3evF7o9GjAMLRVN16fkDBx6YH7tFfQFxsSSfIToXHW0L8k06HW5eoLEo6nZ/mBI7tq98XQ4qWC71n+/O59bGP2mFph1LR4G2m9DApW4I/JVTLqWh0dkQbNV5RrPn9h+nJ0dNUumubUU2uTyd9u6UjCc+Hg9ScqNc3fheNoeS72ihu/33G/O+xwUc0nX+0ngRsUkakGgk5IiU4Lx4xofqMRiKKcQNHajo9tLGKLv11EaMEOdMDVJiTf/JGFyEMofM0tPqJjLXXwtTqgFx/8y5PIiZsuepaouNBWZ3T/Sp8OUZsim67Tllvc7qFZ6zzdMXLD5aKLtqkRgDvP9NuGlHVbq2cdkrCToIjsz5PZo+KvNV6V+Tzy13QKkwkHmabMOMRiR5MH4Jt80lJeOce1Se9e57rHhJ8DmxhEmqNSCIYegrX6hW+8XMRDdmL8OS7US9v7dwpjB+lehDidH2xd3rTzEbR+EeFZJ47L+jSSO+GDYRRB7IffnVf2JAwKCAQu13w8TJwLKBwKUHqcbb/vnofHz6geLweIM03Rbi4e87zdMgeghbM0ys6hAg/ZMwUkpUn89OGtGBE5cmjPYXEdbJcd8EF3LTmEf/POdaJ1qc/ObHbUw==",
+       "name": "granny"
+      }
+   ],
    "hosts": [
       {
          "address": "ssh1.example.com:22",
@@ -17,4 +30,3 @@
       }
    ]
 }
-
