@@ -1,6 +1,6 @@
 {
    "address": ":22",
-   "hostkey": "hostkey",
+   "hostkey": "-----BEGIN EC PRIVATE KEY-----\nMHcCAQEEIJEDt/lHs7jSUNEMbX+Swp6xa8ZiamPFoYsTZgP+We8DoAoGCCqGSM49\nAwEHoUQDQgAEUvK6aRbBnFVsXvpJ9bwUDEI3c/phJAIsjk2dA+YNiFVQq20Xkefl\nFqPJeBriA2EMGkU2AmKGFK45PwRjKI10bA==\n-----END EC PRIVATE KEY-----",
    "users": [
       {
       	"publicKey": "AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPoWImSrY0Rt33Rg97HkDS3r7mdcFn5EJUv/dxiRWD9aPQUm8wp7buZDhpjb32Dt2PjKnNB6PrNOj7ORDFYEhRg=",

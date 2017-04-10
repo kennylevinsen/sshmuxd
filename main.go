@@ -6,7 +6,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net"
 
@@ -85,6 +84,11 @@ func main() {
 		panic(fmt.Errorf("Error parsing the config file hosts list: %s\n", err))
 	}
 
+	hostSigner, err := ssh.ParsePrivateKey([]byte(viper.GetString("hostkey")))
+	if err != nil {
+		panic(err)
+	}
+
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		log.Println("Config file changed:", e.Name)
@@ -103,17 +107,15 @@ func main() {
 		} else {
 			users = u
 		}
+		h, err := ssh.ParsePrivateKey([]byte(viper.GetString("hostkey")))
+		if err != nil {
+			log.Printf("Error parsing the config file hostkey: %s\n"+
+				"Keeping current hostkey", err)
+		} else {
+			hostSigner = h
+		}
+
 	})
-
-	hostPrivateKey, err := ioutil.ReadFile(viper.GetString("hostkey"))
-	if err != nil {
-		panic(err)
-	}
-
-	hostSigner, err := ssh.ParsePrivateKey(hostPrivateKey)
-	if err != nil {
-		panic(err)
-	}
 
 	hasDefaults := false
 	for _, h := range hosts {

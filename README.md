@@ -80,23 +80,21 @@ Please note that the sftp and scp clients bundled with openssh cannot use normal
 Using a "ssh -W" ProxyCommand circumvents this limitation, both for ssh and sftp/scp, and also bypasses the interactive server selection, as the client will inform sshmux of the wanted target directly. If the target is permitted, the user will be connected. This also provides more protection for the paranoid, as the connection to the final host is encrypted end-to-end, rather than being plaintext in the memory of sshmux.
 
 # Configuration
-sshmuxd requires 2 things:
-* A private key for the server to use ("hostkey").
-* A JSON configuration file named sshdmuxd.json in one of the following places:
+sshmuxd requires a configuration file named sshmuxd.json in one of the following places:
   - Working dir
 	- $HOME/.sshmuxd/
 	- /etc/sshmuxd/
 	- or pass the path on command line using --config filename.json
 
-The format of the file is as follows (note that, due to the presence of comments, this is not actually a valid JSON file. Remove comments before use, or refer to sshmuxd.json)
+The format of the file is as follows (note that, due to the presence of comments, this is not actually a valid JSON file. Remove comments before use, or refer to sshmuxd.json).
 
 ```
 {
 	// Listening address as given directly to net.Listen.
 	"address": ":22",
 
-	// Private key to use for built-in SSH server.
-	"hostkey": "hostkey",
+	// Private key to use for built-in SSH server. Make sure you replace all newlines with \n
+	"hostkey": "-----BEGIN EC PRIVATE KEY-----\nMHcCAQEEIJEDt/lHs7jSUNEMbX+Swp6xa8ZiamPFoYsTZgP+We8DoAoGCCqGSM49\nAwEHoUQDQgAEUvK6aRbBnFVsXvpJ9bwUDEI3c/phJAIsjk2dA+YNiFVQq20Xkefl\nFqPJeBriA2EMGkU2AmKGFK45PwRjKI10bA==\n-----END EC PRIVATE KEY-----",
 
 	// Authorized keys to use for authenticating users.
 	"users": [
