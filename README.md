@@ -80,29 +80,37 @@ Please note that the sftp and scp clients bundled with openssh cannot use normal
 Using a "ssh -W" ProxyCommand circumvents this limitation, both for ssh and sftp/scp, and also bypasses the interactive server selection, as the client will inform sshmux of the wanted target directly. If the target is permitted, the user will be connected. This also provides more protection for the paranoid, as the connection to the final host is encrypted end-to-end, rather than being plaintext in the memory of sshmux.
 
 # Configuration
-sshmuxd requires 3 things:
-* An authorized_keys-style file ("authkeys"), with the public key of all permitted users. Do note that the comment after the public key will be used as name of the user internally (this does not affect usernames over SSH, though).
-* A private key for the server to use ("hostkey").
-* A JSON configuration file named sshdmuxd.json in one of the following places:
+sshmuxd requires a configuration file named sshmuxd.json in one of the following places:
   - Working dir
 	- $HOME/.sshmuxd/
 	- /etc/sshmuxd/
 	- or pass the path on command line using --config filename.json
 
-The format of the file is as follows (note that, due to the presence of comments, this is not actually a valid JSON file. Remove comments before use, or refer to sshmuxd.json)
+The format of the file is as follows (note that, due to the presence of comments, this is not actually a valid JSON file. Remove comments before use, or refer to sshmuxd.json).
 
 ```
 {
 	// Listening address as given directly to net.Listen.
 	"address": ":22",
 
-	// Private key to use for built-in SSH server.
-	"hostkey": "hostkey",
+	// Private key to use for built-in SSH server. Make sure you replace all newlines with \n
+	"hostkey": "-----BEGIN EC PRIVATE KEY-----\nMHcCAQEEIJEDt/lHs7jSUNEMbX+Swp6xa8ZiamPFoYsTZgP+We8DoAoGCCqGSM49\nAwEHoUQDQgAEUvK6aRbBnFVsXvpJ9bwUDEI3c/phJAIsjk2dA+YNiFVQq20Xkefl\nFqPJeBriA2EMGkU2AmKGFK45PwRjKI10bA==\n-----END EC PRIVATE KEY-----",
 
-	// Authorized keys to use for authenticating users. An important note
-	// is that the comment (the part after the key itself in an entry)
-	// will	be used as name for the user internally.
-	"authkeys": "authkeys",
+	// Authorized keys to use for authenticating users.
+	"users": [
+		{
+			"publicKey": "AAAAC3NzaC1lZDI1NTE5AAAAIG5AnPTKFnstV0y4n9m4Qo624wEkQKdVKz0HTrsGmecs",
+			"name": "me"
+		},
+		{
+			"publicKey": "AAAAC3NzaC1lZDI1NTE5AAAAINg6gWZLnH5gwLeDlw/URtvYgKmlFiiXHmra6oYObfBz",
+			"name": "boss"
+		},
+		{
+			"publicKey": "AAAAB3NzaC1yc2EAAAADAQABAAACAQDEmICmR4ZD175AlaWnLrMlHnNTu9MqZplgkj2MZOoX4gODbzlRUcI4MquehcZ3evF7o9GjAMLRVN16fkDBx6YH7tFfQFxsSSfIToXHW0L8k06HW5eoLEo6nZ/mBI7tq98XQ4qWC71n+/O59bGP2mFph1LR4G2m9DApW4I/JVTLqWh0dkQbNV5RrPn9h+nJ0dNUumubUU2uTyd9u6UjCc+Hg9ScqNc3fheNoeS72ihu/33G/O+xwUc0nX+0ngRsUkakGgk5IiU4Lx4xofqMRiKKcQNHajo9tLGKLv11EaMEOdMDVJiTf/JGFyEMofM0tPqJjLXXwtTqgFx/8y5PIiZsuepaouNBWZ3T/Sp8OUZsim67Tllvc7qFZ6zzdMXLD5aKLtqkRgDvP9NuGlHVbq2cdkrCToIjsz5PZo+KvNV6V+Tzy13QKkwkHmabMOMRiR5MH4Jt80lJeOce1Se9e57rHhJ8DmxhEmqNSCIYegrX6hW+8XMRDdmL8OS7US9v7dwpjB+lehDidH2xd3rTzEbR+EeFZJ47L+jSSO+GDYRRB7IffnVf2JAwKCAQu13w8TJwLKBwKUHqcbb/vnofHz6geLweIM03Rbi4e87zdMgeghbM0ys6hAg/ZMwUkpUn89OGtGBE5cmjPYXEdbJcd8EF3LTmEf/POdaJ1qc/ObHbUw==",
+			"name": "granny"
+		}
+	],
 
 	// The list of remote hosts that can be used through this proxy.
 	"hosts": [
