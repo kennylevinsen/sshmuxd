@@ -80,13 +80,14 @@ Please note that the sftp and scp clients bundled with openssh cannot use normal
 Using a "ssh -W" ProxyCommand circumvents this limitation, both for ssh and sftp/scp, and also bypasses the interactive server selection, as the client will inform sshmux of the wanted target directly. If the target is permitted, the user will be connected. This also provides more protection for the paranoid, as the connection to the final host is encrypted end-to-end, rather than being plaintext in the memory of sshmux.
 
 # Configuration
-sshmuxd requires a configuration file named sshmuxd.json in one of the following places:
+sshmuxd requires a configuration file named sshmuxd.json/.yml in one of the following places:
   - Working dir
 	- $HOME/.sshmuxd/
 	- /etc/sshmuxd/
 	- or pass the path on command line using --config filename.json
 
 The format of the file is as follows (note that, due to the presence of comments, this is not actually a valid JSON file. Remove comments before use, or refer to sshmuxd.json).
+You can also use YAML, see sshmuxd.yml for an example.
 
 ```
 {
