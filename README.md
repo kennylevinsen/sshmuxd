@@ -1,6 +1,6 @@
-# sshmuxd [![Go Report Card](https://goreportcard.com/badge/joushou/sshmuxd)](https://goreportcard.com/report/joushou/sshmuxd)
+# sshmuxd [![Go Report Card](https://goreportcard.com/badge/kennylevinsen/sshmuxd)](https://goreportcard.com/report/kennylevinsen/sshmuxd)
 
-A SSH "jump host" style proxy, based off the https://github.com/joushou/sshmux library.
+A SSH "jump host" style proxy, based off the https://github.com/kennylevinsen/sshmux library.
 
 So, why not just a jump host? Well, if it's just you and no one else needing access, go ahead. If you, however, want to give more than one person SSH access through your public IP on port N (N often being 22), then you might want something with a bit more access control. Sure, you can make really complicated SSH configs that limit a lot of things for the other users, but they'll always be able to poke around more than you want them to, and it'll be a pain in the butt to maintain.
 
@@ -9,8 +9,8 @@ Thinking it could be done simpler, sshmux and sshmuxd got written. It allows you
 # Installation
 The safest way to install sshmuxd is via git:
 
-	git clone --recursive https://github.com/joushou/sshmuxd.git $GOPATH/src/github.com/joushou/sshmuxd
-	cd $GOPATH/src/github.com/joushou/sshmuxd
+	git clone --recursive https://github.com/kennylevinsen/sshmuxd.git $GOPATH/src/github.com/kennylevinsen/sshmuxd
+	cd $GOPATH/src/github.com/kennylevinsen/sshmuxd
 	go install
 
 Dependencies are vendored as git submodules.
@@ -28,7 +28,7 @@ If it gets a direct tcp connection request, it will simply check if this connect
 Using the "regular ssh"-mode with interactive selection (that is, more than one permitted remote host for that user):
 
 	$ ssh sshmux.example.com
-	Welcome to sshmux, joushou
+	Welcome to sshmux, kennylevinsen
 	    [0] server1.example.com:22
 	    [1] server2.example.com:22
 	    [2] secret.example.com:65432
@@ -70,7 +70,7 @@ You can also do this directly on the command-line, without ssh_config, with:
 
 	ssh -oProxyCommand="ssh -W %h:%p sshmux.example.com" server1.example.com
 
-This technique works is the general approach to jump hosts, and not related to sshmux. sshmux simply implements it with fine-grained controls. For more info, see the the wiki page (https://github.com/joushou/sshmuxd/wiki/ProxyCommand) or the ssh manpage.
+This technique works is the general approach to jump hosts, and not related to sshmux. sshmux simply implements it with fine-grained controls. For more info, see the the wiki page (https://github.com/kennylevinsen/sshmuxd/wiki/ProxyCommand) or the ssh manpage.
 
 # Limitations
 sshmux, and by extension, sshmuxd, can only forward normal sessions (ssh'ing directly to sshmuxd without a ProxyCommand) if agent forwarding is enabled. This is because your normal session authenticates to sshmux, but sshmux then has to authenticate you with the remote host, requiring a additional access to your agent. sshmux will, however, not forward your agent to the final remote host. Doing this is simple if wanted, but I have yet to decide on how this is toggled.
@@ -141,4 +141,4 @@ You can also use YAML, see sshmuxd.yml for an example.
 ```
 
 # More info
-For more details about this project, see the underlying library: http://github.com/joushou/sshmux
+For more details about this project, see the underlying library: http://github.com/kennylevinsen/sshmux

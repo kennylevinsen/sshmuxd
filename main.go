@@ -10,7 +10,7 @@ import (
 	"net"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/joushou/sshmux"
+	"github.com/kennylevinsen/sshmux"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/ssh"
 )
