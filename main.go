@@ -156,7 +156,10 @@ func main() {
 	outer:
 		for _, h := range hosts {
 			if h.NoAuth {
-				session.Remotes = append(session.Remotes, h.Address)
+				session.Remotes = append(session.Remotes, &sshmux.Remote{
+					Names:   []string{h.Address},
+					Address: h.Address,
+				})
 				continue outer
 			}
 
@@ -166,7 +169,10 @@ func main() {
 
 			for _, u := range h.Users {
 				if u == session.User.Name {
-					session.Remotes = append(session.Remotes, h.Address)
+					session.Remotes = append(session.Remotes, &sshmux.Remote{
+						Names:   []string{h.Address},
+						Address: h.Address,
+					})
 					continue outer
 				}
 			}

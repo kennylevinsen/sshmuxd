@@ -4,9 +4,6 @@
 [submodule "vendor/golang.org/x/sys"]
 	path = vendor/golang.org/x/sys
 	url = https://go.googlesource.com/sys
-[submodule "vendor/github.com/joushou/sshmux"]
-	path = vendor/github.com/joushou/sshmux
-	url = https://github.com/joushou/sshmux
 [submodule "vendor/golang.org/x/crypto"]
 	path = vendor/golang.org/x/crypto
 	url = https://go.googlesource.com/crypto
@@ -46,3 +43,6 @@
 [submodule "vendor/gopkg.in/yaml.v2"]
 	path = vendor/gopkg.in/yaml.v2
 	url = https://gopkg.in/yaml.v2
+[submodule "vendor/github.com/kennylevinsen/sshmux"]
+	path = vendor/github.com/kennylevinsen/sshmux
+	url = https://github.com/kennylevinsen/sshmux
